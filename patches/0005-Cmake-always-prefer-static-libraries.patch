@@ -1,0 +1,46 @@
+From 3f5e03457330d3f75887d7e098d875b4d553124b Mon Sep 17 00:00:00 2001
+From: Umberto Baldi <u.baldi@arduino.cc>
+Date: Tue, 3 May 2022 16:59:10 +0200
+Subject: [PATCH] CMake always prefer static libraries
+
+Co-authored-by: Martino Facchin <m.facchin@arduino.cc>
+---
+ CMakeLists.txt | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 95c89d2..f4546b5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -110,22 +110,12 @@ endif()
+ # Detect installed libraries
+ # =====================================
+ 
+-# Prefer static libraries over DLLs on Windows
+-if(WIN32)
+-    set(PREFERRED_LIBELF libelf.a elf)
+-    set(PREFERRED_LIBUSB libusb.a usb)
+-    set(PREFERRED_LIBUSB_1_0 libusb-1.0.a usb-1.0)
+-    set(PREFERRED_LIBHIDAPI libhidapi.a libhidapi-libusb.a libhidapi-hidraw.a hidapi hidapi-libusb hidapi-hidraw)
+-    set(PREFERRED_LIBFTDI libftdi.a ftdi)
+-    set(PREFERRED_LIBFTDI1 libftdi1.a ftdi1)
+-else()
+-    set(PREFERRED_LIBELF elf)
+-    set(PREFERRED_LIBUSB usb)
+-    set(PREFERRED_LIBUSB_1_0 usb-1.0)
+-    set(PREFERRED_LIBHIDAPI hidapi hidapi-libusb hidapi-hidraw)
+-    set(PREFERRED_LIBFTDI ftdi)
+-    set(PREFERRED_LIBFTDI1 ftdi1)
+-endif()
++set(PREFERRED_LIBELF libelf.a elf)
++set(PREFERRED_LIBUSB libusb.a usb)
++set(PREFERRED_LIBUSB_1_0 libusb-1.0.a usb-1.0)
++set(PREFERRED_LIBHIDAPI libhidapi.a libhidapi-libusb.a libhidapi-hidraw.a hidapi hidapi-libusb hidapi-hidraw)
++set(PREFERRED_LIBFTDI libftdi.a ftdi)
++set(PREFERRED_LIBFTDI1 libftdi1.a ftdi1)
+ 
+ # -------------------------------------
+ # Find libelf
+-- 
+2.17.1
+
