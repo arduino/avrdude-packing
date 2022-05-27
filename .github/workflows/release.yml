@@ -7,8 +7,6 @@ env:
   ARTIFACT_NAME: dist
   # The project's folder on Arduino's download server for uploading builds
   AWS_PLUGIN_TARGET: /tools/
-  AVRDUDE_PATH: ${{ github.workspace }}/avrdude
-  AVRDUDE_PACKING_PATH: ${{ github.workspace }}/avrdude-packing
 
 on:
   push:
@@ -64,18 +62,18 @@ jobs:
     - name: Checkout avrdude-packing repository
       uses: actions/checkout@v3
       with:
-        path: ${{ env.AVRDUDE_PACKING_PATH }}
+        path: avrdude-packing
 
     - name: Checkout avrdude repository
       uses: actions/checkout@v3
       with:
         repository: avrdudes/avrdude
         ref: ${{ steps.get_tag_name.outputs.AVRDUDE_TAG }} # pay attention, the pathches could not apply to newer version than 7.0
-        path: ${{ env.AVRDUDE_PATH }}
+        path: ${{ env.PROJECT_NAME }}
 
     - name: Apply patches
-      working-directory: ${{ env.AVRDUDE_PATH }}
-      run: git apply -v "${{ env.AVRDUDE_PACKING_PATH }}/patches/"*.patch
+      working-directory: ${{ env.PROJECT_NAME }}
+      run: git apply -v ../avrdude-packing/patches/*.patch
 
     - name: replace system ranlib with darwin one
       # for some reason is not possible to override ranlib with env vars, so this is ugly but it's the only way I found
@@ -85,7 +83,7 @@ jobs:
         ln -s /opt/osxcross/target/bin/${{ matrix.config.cross_compile }}-ranlib /usr/bin/ranlib
 
     - name: Build Avrdude
-      working-directory: ${{ env.AVRDUDE_PATH }}
+      working-directory: ${{ env.PROJECT_NAME }}
       run: |
         if [ "${{ matrix.config.os }}" = "macOS" ]; then
           # For darwin we disable the static flags (not supported by clang) and we make some adjustments
@@ -96,7 +94,7 @@ jobs:
         cmake --build build/ -v
 
     - name: Package
-      working-directory: ${{ env.AVRDUDE_PATH }}
+      working-directory: ${{ env.PROJECT_NAME }}
       run: | # we need to create the subdir where to place binaries
         mkdir -p ${{ env.PROJECT_NAME }}_${{ matrix.config.os }}_${{ matrix.config.arch }}/bin ${{ env.PROJECT_NAME }}_${{ matrix.config.os }}_${{ matrix.config.arch }}/etc
         chmod +x build/src/${{ env.PROJECT_NAME }}${{ matrix.config.extension }}
@@ -109,7 +107,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.AVRDUDE_PATH }}/${{ env.PROJECT_NAME }}_*
+        path: ${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}_*
 
   notarize-macos:
     runs-on: macos-latest
@@ -222,8 +220,8 @@ jobs:
         done
         cd ..
         echo ================== CUT ME HERE =====================
-        echo ${package_index}
-        echo ${package_index} > package_index_draft.json
+        echo "${package_index}"
+        echo "${package_index}" > package_index_draft.json
     
     - name: Create Github Release and upload artifacts
       uses: ncipollo/release-action@v1
