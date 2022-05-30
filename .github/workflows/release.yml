@@ -106,6 +106,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
+        if-no-files-found: error
         name: ${{ env.ARTIFACT_NAME }}
         path: ${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}_*
 
@@ -162,7 +163,7 @@ jobs:
         # This step performs the following:
         # 1. Repackage the signed binary replaced in place by Gon (ignoring the output zip file)
         run: |
-          # GitHub's upload/download-artifact@v2 actions don't preserve file permissions,
+          # GitHub's upload/download-artifact actions don't preserve file permissions,
           # so we need to add execution permission back until the action is made to do this.
           chmod +x ${{ env.DIST_DIR }}/${{ env.PROJECT_NAME }}_macOS_64bit/bin/${{ env.PROJECT_NAME }}
           TAG="${GITHUB_REF/refs\/tags\//}"
@@ -182,7 +183,7 @@ jobs:
     needs: [build, notarize-macos]
 
     steps:
-    - name: Checkout avrdude repository # we need package_index.template
+    - name: Checkout repository # we need package_index.template
       uses: actions/checkout@v3
 
     - name: Download artifact
@@ -200,7 +201,7 @@ jobs:
         unzip -p /tmp/3.2.0.zip semver-tool-3.2.0/src/semver >/tmp/semver && chmod +x /tmp/semver
         if [[ "$(/tmp/semver get prerel "${GITHUB_REF/refs\/tags\//}")" ]]; then echo "::set-output name=IS_PRE::true"; fi
 
-    - name: Prepare artifacts for the release and handle package_index
+    - name: Generate package index entry
       run: |
         TAG=${GITHUB_REF/refs\/tags\//}
         package_index=`cat package_index.template | sed s/%%VERSION%%/${TAG}/`
@@ -212,7 +213,7 @@ jobs:
           T_OS=`echo ${folder} | awk '{print toupper($0)}'`
           SHASUM=`sha256sum ${ARCHIVE_NAME} | cut -f1 -d" "`
           SIZE=`stat --printf="%s" ${ARCHIVE_NAME}`
-          package_index=`echo $package_index |
+          package_index=`echo "$package_index" |
             sed s/%%FILENAME_${T_OS}%%/${ARCHIVE_NAME}/ |
             sed s/%%FILENAME_${T_OS}%%/${ARCHIVE_NAME}/ |
             sed s/%%SIZE_${T_OS}%%/${SIZE}/ |
