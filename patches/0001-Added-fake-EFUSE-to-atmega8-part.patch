@@ -1,6 +1,6 @@
-From 51d4f690af8c27cebef3d52e79e008ae0ad5a6ab Mon Sep 17 00:00:00 2001
+From e0b1abaf882e5d05c15bab8a1b5225474b0f9492 Mon Sep 17 00:00:00 2001
 From: Umberto Baldi <u.baldi@arduino.cc>
-Date: Tue, 3 May 2022 16:14:56 +0200
+Date: Tue, 31 May 2022 16:14:48 +0200
 Subject: [PATCH] Added fake EFUSE to atmega8 part. This allows to have a
  common platform.txt recipe for all the ATMegaXX parts in the Arduino IDE.
 
@@ -15,10 +15,10 @@ Co-authored-by: Martino Facchin <m.facchin@arduino.cc>
  1 file changed, 7 insertions(+)
 
 diff --git a/src/avrdude.conf.in b/src/avrdude.conf.in
-index 362b616..4008218 100644
+index 362b616..792d603 100644
 --- a/src/avrdude.conf.in
 +++ b/src/avrdude.conf.in
-@@ -6525,6 +6525,13 @@ part
+@@ -6832,6 +6832,13 @@ part
                            "x x x x  x x x x   i i i i  i i i i";
        ;
  
