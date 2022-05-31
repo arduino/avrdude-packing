@@ -1,0 +1,51 @@
+From f4340702b91b2316a0e4c462bd9a6e97bd6c1419 Mon Sep 17 00:00:00 2001
+From: Umberto Baldi <u.baldi@arduino.cc>
+Date: Tue, 3 May 2022 16:23:06 +0200
+Subject: [PATCH] Revert "Ensure page_size is always at least 1"
+
+This reverts commit da0e437eaa6fab3a3cc27a1425b06ed7c6f3eb97.
+
+Reason for this revert https://github.com/ElTangas/jtag2updi/issues/16#issuecomment-781645764
+We use the jtag2udpi fw on the SAMD11 to be able to program the ATMega4809. That commit was breaking the upload with AVRdude
+
+
+Co-authored-by: Martino Facchin <m.facchin@arduino.cc>
+---
+ src/avrpart.c     | 1 -
+ src/config_gram.y | 8 +-------
+ 2 files changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/src/avrpart.c b/src/avrpart.c
+index dc6def4..1cb1331 100644
+--- a/src/avrpart.c
++++ b/src/avrpart.c
+@@ -255,7 +255,6 @@ AVRMEM * avr_new_memtype(void)
+   }
+ 
+   memset(m, 0, sizeof(*m));
+-  m->page_size = 1; // ensure not 0
+ 
+   return m;
+ }
+diff --git a/src/config_gram.y b/src/config_gram.y
+index a841616..544be23 100644
+--- a/src/config_gram.y
++++ b/src/config_gram.y
+@@ -1308,13 +1308,7 @@ mem_spec :
+ 
+   K_PAGE_SIZE       TKN_EQUAL TKN_NUMBER
+     {
+-      int ps = $3->value.number;
+-      if (ps <= 0)
+-        avrdude_message(MSG_INFO,
+-                        "%s, line %d: invalid page size %d, ignored\n",
+-                        infile, lineno, ps);
+-      else
+-        current_mem->page_size = ps;
++      current_mem->page_size = $3->value.number;
+       free_token($3);
+     } |
+ 
+-- 
+2.17.1
+
