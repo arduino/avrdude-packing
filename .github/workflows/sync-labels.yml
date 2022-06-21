@@ -62,6 +62,7 @@ jobs:
           # Filenames of the shared configurations to apply to the repository in addition to the local configuration.
           # https://github.com/arduino/tooling-project-assets/blob/main/workflow-templates/assets/sync-labels
           - universal.yml
+          - tooling.yml
 
     steps:
       - name: Download
