@@ -1,4 +1,4 @@
-From fe39d175efd3ed8c070725bff3e19a401530d87e Mon Sep 17 00:00:00 2001
+From 5159dabdf85df1f9402a9870545c0a03ed470b4a Mon Sep 17 00:00:00 2001
 From: Umberto Baldi <u.baldi@arduino.cc>
 Date: Tue, 3 May 2022 16:17:51 +0200
 Subject: [PATCH] Attiny85: increase delay More details at
@@ -10,10 +10,19 @@ Co-authored-by: Martino Facchin <m.facchin@arduino.cc>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/src/avrdude.conf.in b/src/avrdude.conf.in
-index 4008218..b2ed5ae 100644
+index 362b616..62e9f61 100644
 --- a/src/avrdude.conf.in
 +++ b/src/avrdude.conf.in
-@@ -10050,7 +10050,7 @@ part
+@@ -11009,7 +11009,7 @@ part
+      avr910_devcode   = 0x20;
+      signature        = 0x1e 0x93 0x0b;
+      reset            = io;
+-     chip_erase_delay = 4500;
++     chip_erase_delay = 400000;
+ 
+      pgm_enable       = "1 0 1 0  1 1 0 0    0 1 0 1  0 0 1 1",
+                         "x x x x  x x x x    x x x x  x x x x";
+@@ -11075,7 +11075,7 @@ part
  			  "  x   x   x   x      x   x   x   x";
  
  	mode		= 0x41;
@@ -22,7 +31,7 @@ index 4008218..b2ed5ae 100644
  	blocksize	= 4;
  	readsize	= 256;
         ;
-@@ -10438,8 +10438,8 @@ part
+@@ -11084,8 +11084,8 @@ part
           size            = 8192;
           page_size       = 64;
           num_pages       = 128;
@@ -33,15 +42,6 @@ index 4008218..b2ed5ae 100644
           readback_p1     = 0xff;
           readback_p2     = 0xff;
           read_lo         = "  0   0   1   0    0   0   0   0",
-@@ -11016,7 +11016,7 @@ part
-      avr910_devcode   = 0x20;
-      signature        = 0x1e 0x93 0x0b;
-      reset            = io;
--     chip_erase_delay = 4500;
-+     chip_erase_delay = 400000;
- 
-      pgm_enable       = "1 0 1 0  1 1 0 0    0 1 0 1  0 0 1 1",
-                         "x x x x  x x x x    x x x x  x x x x";
 -- 
 2.17.1
 
