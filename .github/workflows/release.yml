@@ -71,6 +71,10 @@ jobs:
         ref: ${{ steps.get_tag_name.outputs.AVRDUDE_TAG }} # pay attention, the pathches could not apply to newer version than 7.0
         path: ${{ env.PROJECT_NAME }}
 
+    - name: Set the version
+      working-directory: avrdude-packing/patches/
+      run: perl -pi -e "s/ARDUINO_VERSION_PLACEHOLDER/${GITHUB_REF##*/}/g" 0008-Append-arduino-to-version-string.patch
+
     - name: Apply patches
       working-directory: ${{ env.PROJECT_NAME }}
       run: git apply -v ../avrdude-packing/patches/*.patch
