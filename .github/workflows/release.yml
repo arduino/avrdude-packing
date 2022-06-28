@@ -46,9 +46,6 @@ jobs:
 
     container:
       image: ghcr.io/arduino/crossbuild:0.2.1
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.AVRDUDE_CI_PAT }}
     
     steps:
     # the tag must be formatted this way <AVRDUDE_TAG>-arduino.<ARDUINO_VERSION>, e.g tag -> 7.0-arduino.1
