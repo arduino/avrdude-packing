@@ -1,40 +1,22 @@
-From 8886e3dce286f807bd6c0f93683cad0c5a16a283 Mon Sep 17 00:00:00 2001
-From: Umberto Baldi <u.baldi@arduino.cc>
-Date: Thu, 5 May 2022 15:12:46 +0200
-Subject: [PATCH] CMake fix build not working with mingw toolchain
-
----
- src/CMakeLists.txt | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 9eae65e..94ef468 100644
+index ca6cb64..2ccf4af 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -50,12 +50,12 @@ endif()
+@@ -50,7 +50,7 @@ endif()
  include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
  add_compile_definitions(CONFIG_DIR=\"${CONFIG_DIR}\")
  
 -if(WIN32)
-+if(MINGW)
-     set(EXTRA_WINDOWS_SOURCES "${PROJECT_BINARY_DIR}/src/windows.rc")
++if(WIN32 OR MINGW)
+     set(EXTRA_WINDOWS_RESOURCES "${PROJECT_BINARY_DIR}/src/windows.rc")
      set(EXTRA_WINDOWS_LIBRARIES setupapi ws2_32)
  endif()
+@@ -108,7 +108,7 @@ endif()
  
--if(NOT WIN32)
-+if(NOT MINGW)
-     set(LIB_MATH m)
-     add_compile_options(-Wall) # -Wextra
- endif()
-@@ -102,7 +102,7 @@ file(WRITE "${PROJECT_BINARY_DIR}/avrdude.conf.in" "${conf_file}")
  configure_file(cmake_config.h.in ac_cfg.h)
- configure_file("${PROJECT_BINARY_DIR}/avrdude.conf.in" avrdude.conf)
  configure_file(avrdude.spec.in avrdude.spec)
 -if(WIN32)
-+if(MINGW)
++if(WIN32 OR MINGW)
      configure_file(windows.rc.in windows.rc)
  endif()
  
--- 
-2.17.1
-
