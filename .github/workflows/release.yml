@@ -65,12 +65,12 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: avrdudes/avrdude
-        ref: ${{ steps.get_tag_name.outputs.AVRDUDE_TAG }} # pay attention, the pathches could not apply to newer version than 7.0
+        ref: 4c92030e3a486cfbaeb36e298f6f2929e8e031eb # checking out the latest commit on main, since there is still no newer tag than 7.0
         path: ${{ env.PROJECT_NAME }}
 
     - name: Set the version
       working-directory: avrdude-packing/patches/
-      run: perl -pi -e "s/ARDUINO_VERSION_PLACEHOLDER/${GITHUB_REF##*/}/g" 0008-Append-arduino-to-version-string.patch
+      run: perl -pi -e "s/ARDUINO_VERSION_PLACEHOLDER/${GITHUB_REF##*/}, 4c92030e3a486cfbaeb36e298f6f2929e8e031eb/g" 0008-Append-arduino-to-version-string.patch
 
     - name: Apply patches
       working-directory: ${{ env.PROJECT_NAME }}
