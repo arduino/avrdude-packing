@@ -19,7 +19,7 @@ index ae60e3f..32fb196 100644
  # Process this file with autoconf to produce a configure script.
  
  AC_PREREQ(2.60)
--AC_INIT(avrdude, 7.0-20220508, avrdude-dev@nongnu.org)
+-AC_INIT(avrdude, 7.1, avrdude-dev@nongnu.org)
 +AC_INIT(avrdude, ARDUINO_VERSION_PLACEHOLDER, avrdude-dev@nongnu.org)
  
  AC_CANONICAL_BUILD
