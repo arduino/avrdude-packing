@@ -10,13 +10,13 @@ Co-authored-by: Martino Facchin <m.facchin@arduino.cc>
  2 files changed, 12 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index f4546b5..8507c69 100644
+index 522f505..6b7af1f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -207,6 +207,16 @@ if(HAVE_LIBREADLINE)
-     set(LIB_LIBREADLINE ${HAVE_LIBREADLINE})
+@@ -227,6 +227,16 @@ elseif(MSVC)
+     set(HAVE_LIBREADLINE 1)
  endif()
- 
+
 +find_library(HAVE_LIBNCURSES NAMES ncurses)
 +if(HAVE_LIBNCURSES)
 +    set(LIB_LIBNCURSES ${HAVE_LIBNCURSES})
@@ -31,10 +31,10 @@ index f4546b5..8507c69 100644
  # Use external libraries if requested
  # =====================================
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index a8e0262..9eae65e 100644
+index c51214e..e3abc2d 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -244,6 +244,8 @@ target_link_libraries(libavrdude
+@@ -271,6 +271,8 @@ target_link_libraries(libavrdude
      ${LIB_LIBFTDI}
      ${LIB_LIBFTDI1}
      ${LIB_LIBREADLINE}
