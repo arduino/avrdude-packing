@@ -1,5 +1,5 @@
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index ca6cb64..2ccf4af 100644
+index c10a77eb..b7769c5b 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -50,7 +50,7 @@ endif()
@@ -9,9 +9,9 @@ index ca6cb64..2ccf4af 100644
 -if(WIN32)
 +if(WIN32 OR MINGW)
      set(EXTRA_WINDOWS_RESOURCES "${PROJECT_BINARY_DIR}/src/windows.rc")
-     set(EXTRA_WINDOWS_LIBRARIES setupapi ws2_32)
+     set(EXTRA_WINDOWS_LIBRARIES setupapi hid ws2_32)
  endif()
-@@ -108,7 +108,7 @@ endif()
+@@ -112,7 +112,7 @@ endif()
  
  configure_file(cmake_config.h.in ac_cfg.h)
  configure_file(avrdude.spec.in avrdude.spec)
