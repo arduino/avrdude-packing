@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 95c89d2..4b8c739 100644
+index 9ab5a832..c3b5d8a8 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -42,7 +42,7 @@ include(FindPackageMessage)
+@@ -49,7 +49,7 @@ include(FindPackageMessage)
  include(GNUInstallDirs)
  
  set(CONFIG_DIR "${CMAKE_INSTALL_FULL_SYSCONFDIR}")
@@ -11,15 +11,24 @@ index 95c89d2..4b8c739 100644
  
  # =====================================
  # Get Git commit info
+@@ -91,7 +91,7 @@ if(Git_FOUND)
+ 
+     # If the commit is not tagged, include the date and commit hash in the full version string.
+     if(NOT GIT_COMMIT_HASH STREQUAL GIT_TAG_HASH)
+-        set(AVRDUDE_FULL_VERSION "${CMAKE_PROJECT_VERSION}-${GIT_COMMIT_DATE} (${GIT_COMMIT_HASH})")
++        set(AVRDUDE_FULL_VERSION "ARDUINO_VERSION_PLACEHOLDER-${GIT_COMMIT_DATE} (${GIT_COMMIT_HASH})")
+     endif()
+ endif()
+ 
 diff --git a/src/configure.ac b/src/configure.ac
-index ae60e3f..32fb196 100644
+index 4b8425f0..2282ed74 100644
 --- a/src/configure.ac
 +++ b/src/configure.ac
 @@ -23,7 +23,7 @@
  # Process this file with autoconf to produce a configure script.
  
  AC_PREREQ(2.60)
--AC_INIT(avrdude, 7.1, avrdude-dev@nongnu.org)
+-AC_INIT(avrdude, 7.2, avrdude-dev@nongnu.org)
 +AC_INIT(avrdude, ARDUINO_VERSION_PLACEHOLDER, avrdude-dev@nongnu.org)
  
  AC_CANONICAL_BUILD
