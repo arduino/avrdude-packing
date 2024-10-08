@@ -1,7 +1,16 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9ab5a832..c3b5d8a8 100644
+index 431eda87..ff8d678f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
+@@ -21,7 +21,7 @@
+ #     cmake --build build
+ 
+ cmake_minimum_required(VERSION 3.14)
+-project(avrdude VERSION 7.3 LANGUAGES C)
++project(avrdude VERSION ARDUINO_VERSION_PLACEHOLDER LANGUAGES C)
+ 
+ set(CMAKE_C_STANDARD 11)
+ set(CMAKE_C_STANDARD_REQUIRED True)
 @@ -49,7 +49,7 @@ include(FindPackageMessage)
  include(GNUInstallDirs)
  
@@ -20,16 +29,3 @@ index 9ab5a832..c3b5d8a8 100644
      endif()
  endif()
  
-diff --git a/src/configure.ac b/src/configure.ac
-index 4b8425f0..2282ed74 100644
---- a/src/configure.ac
-+++ b/src/configure.ac
-@@ -23,7 +23,7 @@
- # Process this file with autoconf to produce a configure script.
- 
- AC_PREREQ(2.60)
--AC_INIT(avrdude, 7.2, avrdude-dev@nongnu.org)
-+AC_INIT(avrdude, ARDUINO_VERSION_PLACEHOLDER, avrdude-dev@nongnu.org)
- 
- AC_CANONICAL_BUILD
- AC_CANONICAL_HOST
