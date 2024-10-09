@@ -2,15 +2,6 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 431eda87..ff8d678f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -21,7 +21,7 @@
- #     cmake --build build
- 
- cmake_minimum_required(VERSION 3.14)
--project(avrdude VERSION 7.3 LANGUAGES C)
-+project(avrdude VERSION ARDUINO_VERSION_PLACEHOLDER LANGUAGES C)
- 
- set(CMAKE_C_STANDARD 11)
- set(CMAKE_C_STANDARD_REQUIRED True)
 @@ -49,7 +49,7 @@ include(FindPackageMessage)
  include(GNUInstallDirs)
  
