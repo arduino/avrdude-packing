@@ -18,6 +18,8 @@ jobs:
     name: build (${{ matrix.config.os }}, ${{ matrix.config.arch }})
     runs-on:
       ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         config:
@@ -53,24 +55,21 @@ jobs:
       id: get_tag_name
       run: |
         TAG="${GITHUB_REF##*/}"
-        echo ::set-output name=AVRDUDE_TAG::v${TAG%%-*}
+        echo "AVRDUDE_TAG=v${TAG%%-*}" >> $GITHUB_OUTPUT
+        echo "ARDUINO_TAG=-${TAG#*-}" >> $GITHUB_OUTPUT
     
     # this repo should contain only the patches that could not be upstreamed and the release CI nothing else
     - name: Checkout avrdude-packing repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: avrdude-packing
 
     - name: Checkout avrdude repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: avrdudes/avrdude
         ref: ${{ steps.get_tag_name.outputs.AVRDUDE_TAG }} # pay attention, the pathches could need updating
         path: ${{ env.PROJECT_NAME }}
-
-    - name: Set the version
-      working-directory: avrdude-packing/patches/
-      run: perl -pi -e "s/ARDUINO_VERSION_PLACEHOLDER/${GITHUB_REF##*/}/g" 0008-Append-arduino-to-version-string.patch
 
     - name: Apply patches
       working-directory: ${{ env.PROJECT_NAME }}
@@ -88,11 +87,13 @@ jobs:
       run: |
         if [ "${{ matrix.config.os }}" = "macOS" ]; then
           # For darwin we disable the static flags (not supported by clang) and we make some adjustments
-          cmake -DCMAKE_C_COMPILER=${{ matrix.config.cross_compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cross_compiler }}++ -DCMAKE_AR=${{ matrix.config.ar }} -DCMAKE_LINKER=${{ matrix.config.ld}} -DCMAKE_EXE_LINKER_FLAGS="-L/opt/lib/${{ matrix.config.cross_compile }}/lib/" -DCMAKE_C_FLAGS="-I/opt/lib/${{ matrix.config.cross_compile }}/include -pthread -framework Foundation -framework IOKit -framework Cocoa -framework Security -DHAVE_USB_H" -DCMAKE_PREFIX_PATH=/opt/lib/${{ matrix.config.cross_compile }}/ -DHAVE_LIBFTDI="NO" -DUSE_STATIC_LIBS="ON" -B build/
+          cmake -DCMAKE_C_COMPILER=${{ matrix.config.cross_compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cross_compiler }}++ -DCMAKE_AR=${{ matrix.config.ar }} -DCMAKE_LINKER=${{ matrix.config.ld}} -DCMAKE_EXE_LINKER_FLAGS="-L/opt/lib/${{ matrix.config.cross_compile }}/lib/" -DCMAKE_C_FLAGS="-I/opt/lib/${{ matrix.config.cross_compile }}/include -pthread -framework Foundation -framework IOKit -framework Cocoa -framework Security -DHAVE_USB_H" -DCMAKE_PREFIX_PATH=/opt/lib/${{ matrix.config.cross_compile }}/ -DHAVE_LIBFTDI="NO" -DUSE_STATIC_LIBS="ON" -DEXTRA_VERSION=${{ env.ARDUINO_TAG }} -B build/
         else
-          cmake -DCMAKE_C_COMPILER=${{ matrix.config.cross_compile }}-gcc -DCMAKE_CXX_COMPILER=${{ matrix.config.cross_compile }}-g++ -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++" -DCMAKE_C_FLAGS="-I/opt/lib/${{ matrix.config.cross_compile }}/include/libusb-1.0/ -I/opt/lib/${{ matrix.config.cross_compile }}/include -pthread" -DCMAKE_PREFIX_PATH=/opt/lib/${{ matrix.config.cross_compile }}/ -DHAVE_LIBFTDI="NO" -DUSE_STATIC_LIBS="ON" -B build/
+          cmake -DCMAKE_C_COMPILER=${{ matrix.config.cross_compile }}-gcc -DCMAKE_CXX_COMPILER=${{ matrix.config.cross_compile }}-g++ -DCMAKE_EXE_LINKER_FLAGS="-static-libgcc -static-libstdc++" -DCMAKE_C_FLAGS="-I/opt/lib/${{ matrix.config.cross_compile }}/include/libusb-1.0/ -I/opt/lib/${{ matrix.config.cross_compile }}/include -pthread" -DCMAKE_PREFIX_PATH=/opt/lib/${{ matrix.config.cross_compile }}/ -DHAVE_LIBFTDI="NO" -DUSE_STATIC_LIBS="ON" -DEXTRA_VERSION=${{ env.ARDUINO_TAG }} -B build/
         fi
         cmake --build build/ -v
+      env:
+        ARDUINO_TAG: ${{ steps.get_tag_name.outputs.ARDUINO_TAG }}
 
     - name: Package
       working-directory: ${{ env.PROJECT_NAME }}
@@ -105,24 +106,26 @@ jobs:
         tar -czv ${{ env.PROJECT_NAME }}_${{ matrix.config.os }}_${{ matrix.config.arch }} -f ${{ env.PROJECT_NAME }}_${GITHUB_REF##*/}_${{ matrix.config.os }}_${{ matrix.config.arch }}.tar.gz
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
-        name: ${{ env.ARTIFACT_NAME }}
+        name: ${{ env.ARTIFACT_NAME }}_${{ matrix.config.os }}_${{ matrix.config.arch }}
         path: ${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}_*
 
   notarize-macos:
     runs-on: macos-latest
     needs: build
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: ${{ env.ARTIFACT_NAME }}
+          name: ${{ env.ARTIFACT_NAME }}_macOS_64bit
           path: ${{ env.DIST_DIR }}
 
       - name: Import Code-Signing Certificates
@@ -173,26 +176,30 @@ jobs:
             -C ${{ env.DIST_DIR }}/ ${{ env.PROJECT_NAME }}_macOS_64bit/
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           if-no-files-found: error
-          name: ${{ env.ARTIFACT_NAME }}
+          name: ${{ env.ARTIFACT_NAME }}_macOS_64bit
           path: ${{ env.DIST_DIR }}
- 
+          overwrite: true
+
   create-release:
     runs-on:
       ubuntu-latest
+    permissions:
+      contents: write
     needs: [build, notarize-macos]
 
     steps:
     - name: Checkout repository # we need package_index.template
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Download artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        name: ${{ env.ARTIFACT_NAME }}
+        pattern: ${{ env.ARTIFACT_NAME }}*
         path: ${{ env.DIST_DIR }}
+        merge-multiple: true
 
     - name: Identify Prerelease
       # This is a workaround while waiting for create-release action
@@ -201,7 +208,7 @@ jobs:
       run: |
         wget -q -P /tmp https://github.com/fsaintjacques/semver-tool/archive/3.2.0.zip
         unzip -p /tmp/3.2.0.zip semver-tool-3.2.0/src/semver >/tmp/semver && chmod +x /tmp/semver
-        if [[ "$(/tmp/semver get prerel "${GITHUB_REF/refs\/tags\//}")" ]]; then echo "::set-output name=IS_PRE::true"; fi
+        if [[ "$(/tmp/semver get prerel "${GITHUB_REF/refs\/tags\//}")" ]]; then echo "IS_PRE=true" >> $GITHUB_OUTPUT; fi
 
     - name: Generate package index entry
       run: |
