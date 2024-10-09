@@ -1,0 +1,77 @@
+From a52d8145bcd94310d2f737cb56e15d25d9eba86f Mon Sep 17 00:00:00 2001
+From: Hans Ulrich Niedermann <hun@n-dimensional.de>
+Date: Tue, 8 Oct 2024 21:21:00 +0200
+Subject: [PATCH] Add extra version information to avrdude output
+
+Some downstream projects build avrdude and want to add
+their own version information to the avrdude version.
+
+This adds a clean way to do that without patching for both
+cmake and automake based builds:
+
+    cmake -DEXTRA_VERSION:STRING=-arduino.1-rc1
+    ../configure EXTRA_VERSION=-arduino.1-rc1
+
+After building avrdude, the last line of "avrdude -?"
+will now look similar to the following, depending on
+whether you are building an avrdude git checkout or
+an avrdude release:
+
+    avrdude version 8.0-20240901-arduino.1-rc1 (30e19f23), https://github.com/avrdudes/avrdude
+    avrdude version 8.1-arduino.1-rc1 (30e19f23), https://github.com/avrdudes/avrdude
+---
+ CMakeLists.txt   | 5 +++--
+ src/configure.ac | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 67e38493..b40e5689 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -49,7 +49,7 @@ include(FindPackageMessage)
+ include(GNUInstallDirs)
+ 
+ set(CONFIG_DIR "${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+-set(AVRDUDE_FULL_VERSION ${CMAKE_PROJECT_VERSION})
++set(AVRDUDE_FULL_VERSION "${CMAKE_PROJECT_VERSION}${EXTRA_VERSION}")
+ 
+ # =====================================
+ # Get Git commit info
+@@ -91,7 +91,7 @@ if(Git_FOUND)
+ 
+     # If the commit is not tagged, include the date and commit hash in the full version string.
+     if(NOT GIT_COMMIT_HASH STREQUAL GIT_TAG_HASH)
+-        set(AVRDUDE_FULL_VERSION "${CMAKE_PROJECT_VERSION}-${GIT_COMMIT_DATE} (${GIT_COMMIT_HASH})")
++        set(AVRDUDE_FULL_VERSION "${CMAKE_PROJECT_VERSION}-${GIT_COMMIT_DATE}${EXTRA_VERSION} (${GIT_COMMIT_HASH})")
+     endif()
+ endif()
+ 
+@@ -374,6 +374,7 @@ if (DEBUG_CMAKE)
+     message(STATUS "CMAKE_C_COMPILER: ${CMAKE_C_COMPILER}")
+     message(STATUS "CONFIG_DIR: ${CONFIG_DIR}")
+     message(STATUS "AVRDUDE_FULL_VERSION: ${AVRDUDE_FULL_VERSION}")
++    message(STATUS "EXTRA_VERSION: ${EXTRA_VERSION}")
+     message(STATUS "USE_EXTERNAL_LIBS: ${USE_EXTERNAL_LIBS}")
+     message(STATUS "USE_LIBUSBWIN32: ${USE_LIBUSBWIN32}")
+     message(STATUS "HAVE_LIBELF: ${HAVE_LIBELF}")
+diff --git a/src/configure.ac b/src/configure.ac
+index 91f6a445..c294f590 100644
+--- a/src/configure.ac
++++ b/src/configure.ac
+@@ -80,11 +80,12 @@ AC_MSG_RESULT([$PACKAGE_VERSION])
+ dnl Compose the full version message mirroring the cmake one, inform
+ dnl about it and pass it on to avrdude.conf and the "avrdude -?"
+ dnl version message
++AC_ARG_VAR([EXTRA_VERSION], [extra version information to be added to version info])
+ AC_MSG_CHECKING([versioninfo derived AVRDUDE_FULL_VERSION])
+ if test "x$GIT_COMMIT_HASH" = "x$GIT_TAG_HASH"; then
+-	AVRDUDE_FULL_VERSION="$PACKAGE_VERSION"
++	AVRDUDE_FULL_VERSION="$PACKAGE_VERSION$EXTRA_VERSION"
+ else
+-	AVRDUDE_FULL_VERSION="$PACKAGE_VERSION ($GIT_COMMIT_HASH)"
++	AVRDUDE_FULL_VERSION="$PACKAGE_VERSION$EXTRA_VERSION ($GIT_COMMIT_HASH)"
+ fi
+ AC_MSG_RESULT([$AVRDUDE_FULL_VERSION])
+ AC_DEFINE_UNQUOTED([AVRDUDE_FULL_VERSION], ["$AVRDUDE_FULL_VERSION"],
+-- 
+2.46.2
