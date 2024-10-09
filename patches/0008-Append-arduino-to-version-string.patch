@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 9ab5a832..c3b5d8a8 100644
+index 431eda87..ff8d678f 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -49,7 +49,7 @@ include(FindPackageMessage)
@@ -20,16 +20,3 @@ index 9ab5a832..c3b5d8a8 100644
      endif()
  endif()
  
-diff --git a/src/configure.ac b/src/configure.ac
-index 4b8425f0..2282ed74 100644
---- a/src/configure.ac
-+++ b/src/configure.ac
-@@ -23,7 +23,7 @@
- # Process this file with autoconf to produce a configure script.
- 
- AC_PREREQ(2.60)
--AC_INIT(avrdude, 7.2, avrdude-dev@nongnu.org)
-+AC_INIT(avrdude, ARDUINO_VERSION_PLACEHOLDER, avrdude-dev@nongnu.org)
- 
- AC_CANONICAL_BUILD
- AC_CANONICAL_HOST
